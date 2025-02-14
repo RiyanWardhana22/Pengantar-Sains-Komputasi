@@ -1,6 +1,6 @@
 from numpy import array, zeros
 
-print("NAMA : RIYAN WARDHANA")
+print("\nNAMA : RIYAN WARDHANA")
 print("NIM : 4233550008")
 
 # LATIHAN SOAL NOOMR 1 TRANSPOSE MATRIX A
