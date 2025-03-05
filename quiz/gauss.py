@@ -8,7 +8,8 @@ A = np.array([
 B = np.array([14, 10, 14])
 I = np.linalg.solve(A, B)
 
-print(f"Arus i1 = {I[0]} A")
-print(f"Arus i2 = {I[1]} A")
-print(f"Arus i3 = {I[2]} A")
+print(f"ARUS i1 = {I[0]} A")
+print(f"ARUS i2 = {I[1]} A")
+print(f"ARUS i3 = {I[2]} A")
+
 
