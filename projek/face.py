@@ -2,8 +2,9 @@ import cv2
 import numpy as np
 import os
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from PIL import Image, ImageTk
+from ttkthemes import ThemedTk
 
 def calculate_histogram(image):
     hist = cv2.calcHist([image], [0], None, [256], [0, 256])
@@ -69,18 +70,32 @@ def face_recognition():
         messagebox.showerror("Access Denied", "Face not recognized!")
 
 def open_atm_interface():
-    atm_window = tk.Tk()
+    atm_window = ThemedTk(theme="arc")
     atm_window.title("ATM Interface")
+    atm_window.geometry("400x300")
     tk.Label(atm_window, text="Welcome to ATM", font=("Arial", 20)).pack(pady=20)
     atm_window.mainloop()
 
-root = tk.Tk()
+root = ThemedTk(theme="arc")
 root.title("Face Recognition ATM")
-tk.Label(root, text="PILIH UNTUK AUTENTIKASI", font=("Arial", 14)).pack(pady=20)
-start_btn = tk.Button(root, text="Mulai", command=face_recognition)
-start_btn.pack(pady=5)
-save_btn = tk.Button(root, text="Daftarkan Wajah", command=save_reference_hist)
-save_btn.pack(pady=5)
+root.geometry("400x300")
 
+image = Image.open("atm.png") 
+# image = image.resize((100, 100), Image.ANTIALIAS)
+photo = ImageTk.PhotoImage(image)
+image_label = tk.Label(root, image=photo)
+image_label.pack(pady=10)
+
+title_label = tk.Label(root, text="PILIH UNTUK AUTENTIKASI", font=("Arial", 14))
+title_label.pack(pady=10)
+
+style = ttk.Style()
+style.configure("TButton", font=("Arial", 12), padding=10)
+
+start_btn = ttk.Button(root, text="Mulai", command=face_recognition)
+start_btn.pack(pady=5)
+
+save_btn = ttk.Button(root, text="Daftarkan Wajah", command=save_reference_hist)
+save_btn.pack(pady=5)
 
 root.mainloop()
