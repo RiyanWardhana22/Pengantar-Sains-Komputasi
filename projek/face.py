@@ -5,11 +5,21 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 from PIL import Image, ImageTk
 from ttkthemes import ThemedTk
+import matplotlib.pyplot as plt
 
 def calculate_histogram(image):
     hist = cv2.calcHist([image], [0], None, [256], [0, 256])
     hist = cv2.normalize(hist, hist).flatten()
     return hist
+
+def plot_histogram(hist, title="Histogram"):
+    plt.figure()
+    plt.title(title)
+    plt.xlabel("Bins")
+    plt.ylabel("Frequency")
+    plt.plot(hist, color='black')
+    plt.xlim([0, 256])
+    plt.show()
 
 def save_reference_hist():
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -28,6 +38,7 @@ def save_reference_hist():
             cap.release()
             cv2.destroyAllWindows()
             messagebox.showinfo("Success", "Histogram referensi telah disimpan.")
+            plot_histogram(hist, title="Reference Face Histogram")
             return
         cv2.imshow('Capture Reference Face', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -57,8 +68,11 @@ def face_recognition():
                 recognized = True
                 cap.release()
                 cv2.destroyAllWindows()
+                plot_histogram(hist, title="Recognized Face Histogram")
                 open_atm_interface()
                 return
+            else:
+                plot_histogram(hist, title="Unrecognized Face Histogram")
             
         cv2.imshow('Face Recognition', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -76,19 +90,22 @@ def open_atm_interface():
     tk.Label(atm_window, text="Welcome to ATM", font=("Arial", 20)).pack(pady=20)
     atm_window.mainloop()
 
+# Main application window with a modern theme
 root = ThemedTk(theme="arc")
 root.title("Face Recognition ATM")
 root.geometry("400x300")
 
-image = Image.open("atm.png") 
-# image = image.resize((100, 100), Image.ANTIALIAS)
+# Load and display an image
+image = Image.open("atm.png")  # Replace with your image path
 photo = ImageTk.PhotoImage(image)
 image_label = tk.Label(root, image=photo)
 image_label.pack(pady=10)
 
+# Title label
 title_label = tk.Label(root, text="PILIH UNTUK AUTENTIKASI", font=("Arial", 14))
 title_label.pack(pady=10)
 
+# Buttons with modern style
 style = ttk.Style()
 style.configure("TButton", font=("Arial", 12), padding=10)
 
