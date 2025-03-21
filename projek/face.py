@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 from ttkthemes import ThemedTk
 import matplotlib.pyplot as plt
 
-def calculate_histogram(image):
+def perhitungan_histogram(image):
     hist = cv2.calcHist([image], [0], None, [256], [0, 256])
     hist = cv2.normalize(hist, hist).flatten()
     return hist
@@ -21,7 +21,7 @@ def plot_histogram(hist, title="Histogram"):
     plt.xlim([0, 256])
     plt.show()
 
-def save_reference_hist():
+def simpan_daftar_histogram():
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     cap = cv2.VideoCapture(0)
     while True:
@@ -32,7 +32,7 @@ def save_reference_hist():
         faces = face_cascade.detectMultiScale(gray, 1.3, 5)
         for (x, y, w, h) in faces:
             face_roi = gray[y:y+h, x:x+w]
-            hist = calculate_histogram(face_roi)
+            hist = perhitungan_histogram(face_roi)
             np.save('reference_hist.npy', hist)
             print("Histogram referensi telah disimpan.")
             cap.release()
@@ -62,14 +62,14 @@ def face_recognition():
         faces = face_cascade.detectMultiScale(gray, 1.3, 5)
         for (x, y, w, h) in faces:
             face_roi = gray[y:y+h, x:x+w]
-            hist = calculate_histogram(face_roi)
+            hist = perhitungan_histogram(face_roi)
             similarity = cv2.compareHist(hist, ref_hist, cv2.HISTCMP_CORREL)
             if similarity > 0.8:  
                 recognized = True
                 cap.release()
                 cv2.destroyAllWindows()
                 plot_histogram(hist, title="Recognized Face Histogram")
-                open_atm_interface()
+                atm()
                 return
             else:
                 plot_histogram(hist, title="Unrecognized Face Histogram")
@@ -83,7 +83,7 @@ def face_recognition():
     if not recognized:
         messagebox.showerror("Access Denied", "Face not recognized!")
 
-def open_atm_interface():
+def atm():
     atm_window = ThemedTk(theme="arc")
     atm_window.title("ATM Interface")
     atm_window.geometry("400x300")
@@ -108,7 +108,7 @@ style.configure("TButton", font=("Arial", 12), padding=10)
 start_btn = ttk.Button(root, text="Mulai", command=face_recognition)
 start_btn.pack(pady=5)
 
-save_btn = ttk.Button(root, text="Daftarkan Wajah", command=save_reference_hist)
+save_btn = ttk.Button(root, text="Daftarkan Wajah", command=simpan_daftar_histogram)
 save_btn.pack(pady=5)
 
 root.mainloop()
