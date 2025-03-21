@@ -33,7 +33,7 @@ def simpan_daftar_histogram():
         for (x, y, w, h) in faces:
             face_roi = gray[y:y+h, x:x+w]
             hist = perhitungan_histogram(face_roi)
-            np.save('reference_hist.npy', hist)
+            np.save('projek/reference_hist.npy', hist)
             print("Histogram referensi telah disimpan.")
             cap.release()
             cv2.destroyAllWindows()
@@ -47,13 +47,13 @@ def simpan_daftar_histogram():
     cv2.destroyAllWindows()
 
 def face_recognition():
-    if not os.path.exists('reference_hist.npy'):
+    if not os.path.exists('projek/reference_hist.npy'):
         messagebox.showerror("Error", "Histogram referensi tidak ditemukan! Simpan referensi wajah terlebih dahulu.")
         return
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     cap = cv2.VideoCapture(0)
     recognized = False
-    ref_hist = np.load('reference_hist.npy') 
+    ref_hist = np.load('projek/reference_hist.npy') 
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -94,7 +94,7 @@ root = ThemedTk(theme="arc")
 root.title("Face Recognition ATM")
 root.geometry("400x300")
 
-image = Image.open("atm.png")  
+image = Image.open("projek/atm.png")  
 photo = ImageTk.PhotoImage(image)
 image_label = tk.Label(root, image=photo)
 image_label.pack(pady=10)
