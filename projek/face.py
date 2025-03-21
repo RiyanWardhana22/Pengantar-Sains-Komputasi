@@ -17,7 +17,7 @@ def plot_histogram(hist, title="Histogram"):
     plt.title(title)
     plt.xlabel("Bins")
     plt.ylabel("Frequency")
-    plt.plot(hist, color='black')
+    plt.plot(hist, color='red')
     plt.xlim([0, 256])
     plt.show()
 
@@ -90,22 +90,18 @@ def open_atm_interface():
     tk.Label(atm_window, text="Welcome to ATM", font=("Arial", 20)).pack(pady=20)
     atm_window.mainloop()
 
-# Main application window with a modern theme
 root = ThemedTk(theme="arc")
 root.title("Face Recognition ATM")
 root.geometry("400x300")
 
-# Load and display an image
-image = Image.open("atm.png")  # Replace with your image path
+image = Image.open("atm.png")  
 photo = ImageTk.PhotoImage(image)
 image_label = tk.Label(root, image=photo)
 image_label.pack(pady=10)
 
-# Title label
 title_label = tk.Label(root, text="PILIH UNTUK AUTENTIKASI", font=("Arial", 14))
 title_label.pack(pady=10)
 
-# Buttons with modern style
 style = ttk.Style()
 style.configure("TButton", font=("Arial", 12), padding=10)
 
