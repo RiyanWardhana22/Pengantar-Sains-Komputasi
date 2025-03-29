@@ -117,81 +117,49 @@ class FaceLoginSystem(ctk.CTk):
         ret, frame = self.cap.read()
         if ret:
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            
-            # Buat jendela histogram yang lebih besar untuk menampung plot dan tabel
-            hist_window = ctk.CTkToplevel(self)
-            hist_window.title("Color Histogram with Values")
-            hist_window.geometry("900x700")  # Ukuran lebih besar
-            
-            # Frame untuk plot histogram
-            plot_frame = ctk.CTkFrame(hist_window)
-            plot_frame.pack(pady=10, padx=10, fill="both", expand=True)
-            
-            # Hitung histogram dan simpan datanya
             colors = ('r', 'g', 'b')
             channel_names = ('Red', 'Green', 'Blue')
-            plt.figure(figsize=(8, 5))
-            hist_data = {}  # Dictionary untuk menyimpan data histogram
-            
+            hist_data = {}
             for i, color in enumerate(colors):
                 hist = cv2.calcHist([frame_rgb], [i], None, [256], [0, 256])
                 hist_data[channel_names[i]] = hist.flatten()
-                plt.plot(hist, color=color)
-                plt.xlim([0, 256])
             
-            plt.title('Color Histogram')
-            plt.xlabel('Pixel Intensity (0-255)')
-            plt.ylabel('Frequency')
+            print("\n=== Histogram Values ===")
+            print("Intensity\tRed\tGreen\tBlue")
+            print("-" * 40)
+            for intensity in range(0, 256, 12):  
+                red_val = int(hist_data['Red'][intensity])
+                green_val = int(hist_data['Green'][intensity])
+                blue_val = int(hist_data['Blue'][intensity])
+                print(f"{intensity}\t\t{red_val}\t{green_val}\t{blue_val}")
             
-            # Simpan plot sebagai gambar sementara
-            temp_file = "temp_hist.png"
-            plt.savefig(temp_file, bbox_inches='tight')
-            plt.close()
-            
-            # Tampilkan plot di GUI
-            hist_img = ctk.CTkImage(Image.open(temp_file), size=(800, 400))
-            hist_label = ctk.CTkLabel(plot_frame, image=hist_img, text="")
-            hist_label.pack()
-            os.remove(temp_file)
-            
-            # Frame untuk tabel nilai histogram
-            table_frame = ctk.CTkFrame(hist_window)
-            table_frame.pack(pady=10, padx=10, fill="both", expand=True)
-            
-            # Buat scrollable frame untuk tabel
-            scroll_frame = ctk.CTkScrollableFrame(table_frame, height=200)
-            scroll_frame.pack(fill="both", expand=True)
-            
-            # Header tabel
-            header_frame = ctk.CTkFrame(scroll_frame, fg_color="transparent")
-            header_frame.pack(fill="x")
-            ctk.CTkLabel(header_frame, text="Intensity", width=100, font=("Arial", 12, "bold")).pack(side="left", padx=2)
-            ctk.CTkLabel(header_frame, text="Red", width=100, font=("Arial", 12, "bold"), text_color="red").pack(side="left", padx=2)
-            ctk.CTkLabel(header_frame, text="Green", width=100, font=("Arial", 12, "bold"), text_color="green").pack(side="left", padx=2)
-            ctk.CTkLabel(header_frame, text="Blue", width=100, font=("Arial", 12, "bold"), text_color="blue").pack(side="left", padx=2)
-            
-            # Isi tabel (contoh: tampilkan 20 nilai dengan interval 12)
-            for intensity in range(0, 256, 12):
-                row_frame = ctk.CTkFrame(scroll_frame, fg_color="transparent")
-                row_frame.pack(fill="x")
-                
-                # Kolom intensity
-                ctk.CTkLabel(row_frame, text=str(intensity), width=100).pack(side="left", padx=2)
-                
-                # Kolom nilai R, G, B
-                ctk.CTkLabel(row_frame, text=str(int(hist_data['Red'][intensity])), width=100).pack(side="left", padx=2)
-                ctk.CTkLabel(row_frame, text=str(int(hist_data['Green'][intensity])), width=100).pack(side="left", padx=2)
-                ctk.CTkLabel(row_frame, text=str(int(hist_data['Blue'][intensity])), width=100).pack(side="left", padx=2)
-            
-            # Tambahkan statistik ringkasan
-            stats_frame = ctk.CTkFrame(hist_window)
-            stats_frame.pack(pady=10, padx=10, fill="x")
-            
+            print("\n=== Summary ===")
             for channel in channel_names:
                 channel_data = hist_data[channel]
-                stats_text = f"{channel}: Max={int(np.max(channel_data))}, Min={int(np.min(channel_data))}, Avg={int(np.mean(channel_data))}"
-                ctk.CTkLabel(stats_frame, text=stats_text, font=("Arial", 12), 
-                            text_color=channel.lower()).pack(anchor="w", pady=2)
+                print(f"{channel}: Max={int(np.max(channel_data))}, Min={int(np.min(channel_data))}, Avg={int(np.mean(channel_data))}")
+            
+            hist_window = ctk.CTkToplevel(self)
+            hist_window.title("Color Histogram")
+            hist_window.geometry("600x400")
+            
+            plt.figure(figsize=(6, 4))
+            for i, color in enumerate(colors):
+                plt.plot(hist_data[channel_names[i]], color=color)
+                plt.xlim([0, 256])
+            
+            plt.title('Histogram')
+            plt.xlabel('Pixel Intensity')
+            plt.ylabel('Frequency')
+            
+            temp_file = "temp_hist.png"
+            plt.savefig(temp_file)
+            plt.close()
+            
+            hist_img = ctk.CTkImage(Image.open(temp_file), size=(580, 380))
+            hist_label = ctk.CTkLabel(hist_window, image=hist_img, text="")
+            hist_label.pack(padx=10, pady=10)
+            
+            os.remove(temp_file)
     
     def update_camera_feed(self):
         if self.cap is None:
