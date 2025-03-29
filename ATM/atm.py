@@ -286,7 +286,7 @@ class FaceLoginSystem(ctk.CTk):
                 id, confidence = self.recognizer.predict(gray[y:y+h, x:x+w])
                 confidence_percent = round(100 - confidence)
                 confidence_text = f"  {confidence_percent}%"
-                if confidence < 20:
+                if confidence < 50:  
                     recognized_name = id_names.get(id, "Unknown")
                     recognized = True
                     status_message = f"Login Berhasil! Selamat Datang {recognized_name}"
