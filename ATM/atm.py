@@ -254,7 +254,6 @@ class FaceLoginSystem(ctk.CTk):
     
     def train_faces(self):
         path = 'ambilWajah'
-        
         if not os.path.exists(path):
             messagebox.showerror("Error", "Folder sampel wajah tidak ditemukan!")
             return
@@ -318,9 +317,11 @@ class FaceLoginSystem(ctk.CTk):
         self.status_label.configure(text="Mengenali wajah...", text_color="#4e8cff")
         recognized = False
         recognized_name = ""
+        access_denied = False
+        
         def recognize_face():
-            nonlocal recognized, recognized_name
-            if recognized:
+            nonlocal recognized, recognized_name, access_denied
+            if recognized or access_denied:
                 return
             ret, img = self.cap.read()
             if not ret:
@@ -332,25 +333,33 @@ class FaceLoginSystem(ctk.CTk):
                 minNeighbors=5,
                 minSize=(int(minW), int(minH)),
             )
+            
             for (x, y, w, h) in faces:
                 cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 id, confidence = self.recognizer.predict(gray[y:y+h, x:x+w])
                 confidence_percent = round(100 - confidence)
                 confidence_text = f"  {confidence_percent}%"
+                
                 if confidence < 50:  
                     recognized_name = id_names.get(id, "Unknown")
                     recognized = True
                     status_message = f"Login Berhasil! Selamat Datang {recognized_name}"
                     status_color = "#00b894"
+                    cv2.putText(img, recognized_name, (x+5, y-5), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.putText(img, confidence_text, (x+5, y+h-5), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 1)
                 else:
+                    access_denied = True
                     recognized_name = "Akses ditolak!"
                     status_message = "Akses ditolak, wajah tidak diketahui!"
                     status_color = "#d63031"
                     confidence_text = f"  {confidence_percent}% (Terlalu rendah)"
-                cv2.putText(img, recognized_name, (x+5, y-5), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                cv2.putText(img, confidence_text, (x+5, y+h-5), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 1)
+                    cv2.putText(img, recognized_name, (x+5, y-5), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+                    cv2.putText(img, confidence_text, (x+5, y+h-5), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
+            
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = Image.fromarray(img)
             imgtk = ImageTk.PhotoImage(image=img)
@@ -366,9 +375,19 @@ class FaceLoginSystem(ctk.CTk):
                 self.status_label.configure(text=status_message, text_color=status_color)
                 if "Berhasil" in status_message:
                     self.show_atm_gui(recognized_name)
-            else:
-                self.after(10, recognize_face)
-
+            elif access_denied:
+                self.status_label.configure(text=status_message, text_color=status_color)
+                self.after(3000, self.reset_camera)
+                access_denied = False
+        
+        def reset_camera():
+            if self.cap:
+                self.cap.release()
+                self.cap = None
+            if self.after_id:
+                self.after_cancel(self.after_id)
+            self.status_label.configure(text="Ready", text_color="gray")
+        
         recognize_face()
     
     def show_atm_gui(self, username):
